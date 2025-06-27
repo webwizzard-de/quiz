@@ -2,8 +2,63 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Quiz für Anne – Moderator</title>
+  <title>Moderator – Quiz für Anne</title>
   <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      background-color: #001F3F;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: gold;
+    }
+    .question-box {
+      background-color: #003366;
+      border: 2px solid gold;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      background-color: #0077CC;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    li {
+      padding: 6px 0;
+      border-bottom: 1px solid #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Moderator – Quiz für Anne</h1>
+  <div class="question-box">
+    <h2 id="frage">Frage erscheint hier</h2>
+  </div>
+  <button onclick="sendQuestion()">Frage starten</button>
+  <button onclick="next()">Nächste Frage</button>
+  <button onclick="socket.emit('end')">Ende</button>
+
+  <h3>Live Punkte:</h3>
+  <ul id="leaderboard"></ul>
+
   <script>
     const socket = io();
     let currentQuestionIndex = 0;
@@ -20,8 +75,11 @@
 
     function next() {
       currentQuestionIndex++;
-      if (currentQuestionIndex < questions.length) sendQuestion();
-      else socket.emit('end');
+      if (currentQuestionIndex < questions.length) {
+        sendQuestion();
+      } else {
+        socket.emit('end');
+      }
     }
 
     socket.on('update-leaderboard', data => {
@@ -34,13 +92,5 @@
       });
     });
   </script>
-</head>
-<body>
-  <h1>Moderator – Quiz für Anne</h1>
-  <button onclick="sendQuestion()">Frage starten</button>
-  <button onclick="next()">Nächste Frage</button>
-  <h2 id="frage">Frage erscheint hier</h2>
-  <h3>Live Punkte:</h3>
-  <ul id="leaderboard"></ul>
 </body>
 </html>
