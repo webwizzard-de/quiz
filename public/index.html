@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz für Anne – Moderator</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let currentQuestionIndex = 0;
+    let questions = [];
+
+    fetch('/questions')
+      .then(res => res.json())
+      .then(data => questions = data);
+
+    function sendQuestion() {
+      socket.emit('new-question', questions[currentQuestionIndex]);
+      document.getElementById('frage').innerText = questions[currentQuestionIndex].question;
+    }
+
+    function next() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) sendQuestion();
+      else socket.emit('end');
+    }
+
+    socket.on('update-leaderboard', data => {
+      const list = document.getElementById('leaderboard');
+      list.innerHTML = '';
+      data.forEach(player => {
+        const item = document.createElement('li');
+        item.innerText = `${player.name}: ${player.score}`;
+        list.appendChild(item);
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Moderator – Quiz für Anne</h1>
+  <button onclick="sendQuestion()">Frage starten</button>
+  <button onclick="next()">Nächste Frage</button>
+  <h2 id="frage">Frage erscheint hier</h2>
+  <h3>Live Punkte:</h3>
+  <ul id="leaderboard"></ul>
+</body>
+</html>

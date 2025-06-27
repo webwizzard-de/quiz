@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mitspielen – Quiz für Anne</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let playerName = "";
+
+    function submitName() {
+      playerName = document.getElementById("name").value;
+      socket.emit("join", playerName);
+      document.getElementById("start").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+    }
+
+    socket.on("question", q => {
+      document.getElementById("frage").innerText = q.question;
+      ["A", "B", "C", "D"].forEach(letter => {
+        const btn = document.getElementById(letter);
+        btn.innerText = q[letter];
+        btn.onclick = () => socket.emit("answer", { name: playerName, answer: letter });
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="start">
+    <h1>Mitspielen – Quiz für Anne</h1>
+    <input type="text" id="name" placeholder="Dein Name">
+    <button onclick="submitName()">Start</button>
+  </div>
+  <div id="quiz" style="display:none;">
+    <h2 id="frage"></h2>
+    <button id="A"></button>
+    <button id="B"></button>
+    <button id="C"></button>
+    <button id="D"></button>
+  </div>
+</body>
+</html>

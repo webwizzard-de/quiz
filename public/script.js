@@ -1,0 +1,1 @@
+// Externe Datei für zusätzliche Clientlogik (optional verwendbar)
