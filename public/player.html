@@ -5,10 +5,61 @@
   <title>Mitspielen – Quiz für Anne</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    button { margin: 5px; padding: 10px; font-size: 16px; }
-    .correct { background-color: gold; color: black; }
-    .wrong { background-color: red; color: white; }
-    .disabled { opacity: 0.5; pointer-events: none; }
+    body {
+      background-color: #001F3F;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      color: gold;
+    }
+    .question-box {
+      background-color: #003366;
+      border: 2px solid gold;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    button {
+      padding: 15px;
+      font-size: 18px;
+      background-color: #0055A5;
+      color: white;
+      border: 2px solid #0077CC;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #0077CC;
+    }
+    .correct {
+      background-color: gold !important;
+      color: black;
+    }
+    .wrong {
+      background-color: red !important;
+      color: white;
+    }
+    .disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    #feedback {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #FFDC00;
+    }
   </style>
   <script>
     const socket = io();
@@ -46,9 +97,9 @@
       document.getElementById("frage").innerText = q.question;
       ["A", "B", "C", "D"].forEach(letter => {
         const btn = document.getElementById(letter);
-        btn.innerText = q[letter];
+        btn.innerText = `${letter}: ${q[letter]}`;
         btn.onclick = () => {
-          if (currentAnswer) return; // schon geantwortet
+          if (currentAnswer) return;
           currentAnswer = letter;
           socket.emit("answer", { name: playerName, answer: letter });
           disableButtons();
@@ -73,11 +124,15 @@
     <button onclick="submitName()">Start</button>
   </div>
   <div id="quiz" style="display:none;">
-    <h2 id="frage"></h2>
-    <button id="A"></button>
-    <button id="B"></button>
-    <button id="C"></button>
-    <button id="D"></button>
+    <div class="question-box">
+      <h2 id="frage">Frage erscheint hier</h2>
+    </div>
+    <div class="answers">
+      <button id="A"></button>
+      <button id="B"></button>
+      <button id="C"></button>
+      <button id="D"></button>
+    </div>
     <p id="feedback"></p>
   </div>
 </body>
