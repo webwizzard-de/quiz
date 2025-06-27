@@ -4,9 +4,17 @@
   <meta charset="UTF-8">
   <title>Mitspielen – Quiz für Anne</title>
   <script src="/socket.io/socket.io.js"></script>
+  <style>
+    button { margin: 5px; padding: 10px; font-size: 16px; }
+    .correct { background-color: gold; color: black; }
+    .wrong { background-color: red; color: white; }
+    .disabled { opacity: 0.5; pointer-events: none; }
+  </style>
   <script>
     const socket = io();
     let playerName = "";
+    let currentAnswer = null;
+    let correctAnswer = null;
 
     function submitName() {
       playerName = document.getElementById("name").value;
@@ -15,12 +23,45 @@
       document.getElementById("quiz").style.display = "block";
     }
 
+    function disableButtons() {
+      ["A", "B", "C", "D"].forEach(letter => {
+        document.getElementById(letter).classList.add("disabled");
+        document.getElementById(letter).disabled = true;
+      });
+    }
+
+    function resetButtons() {
+      ["A", "B", "C", "D"].forEach(letter => {
+        const btn = document.getElementById(letter);
+        btn.className = "";
+        btn.disabled = false;
+      });
+      document.getElementById("feedback").innerText = "";
+    }
+
     socket.on("question", q => {
+      currentAnswer = null;
+      correctAnswer = q.correct;
+      resetButtons();
       document.getElementById("frage").innerText = q.question;
       ["A", "B", "C", "D"].forEach(letter => {
         const btn = document.getElementById(letter);
         btn.innerText = q[letter];
-        btn.onclick = () => socket.emit("answer", { name: playerName, answer: letter });
+        btn.onclick = () => {
+          if (currentAnswer) return; // schon geantwortet
+          currentAnswer = letter;
+          socket.emit("answer", { name: playerName, answer: letter });
+          disableButtons();
+          document.getElementById("feedback").innerText = "Antwort gesendet. Bitte warten ...";
+        };
+      });
+    });
+
+    socket.on("update-leaderboard", () => {
+      ["A", "B", "C", "D"].forEach(letter => {
+        const btn = document.getElementById(letter);
+        if (letter === correctAnswer) btn.classList.add("correct");
+        if (letter === currentAnswer && letter !== correctAnswer) btn.classList.add("wrong");
       });
     });
   </script>
@@ -37,6 +78,7 @@
     <button id="B"></button>
     <button id="C"></button>
     <button id="D"></button>
+    <p id="feedback"></p>
   </div>
 </body>
 </html>
